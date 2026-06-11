@@ -1,0 +1,99 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}ເພີ່ມເຮືອນໃໝ່{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4><i class="fas fa-plus-circle" style="color:#2d6a4f"></i> ເພີ່ມເຮືອນໃໝ່</h4>
+  <a href="/admin/houses" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> ກັບຄືນ</a>
+</div>
+<div class="stat-card">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">QR Code <span class="text-danger">*</span></label>
+        <input type="text" name="qr_code" class="form-control" required placeholder="e.g. LP_H001">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ເລກທີ່ເຮືອນ</label>
+        <input type="text" name="house_number" class="form-control" placeholder="e.g. 01">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ຊື່ເຮືອນ (ລາວ)</label>
+        <input type="text" name="house_name_lo" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ຊື່ເຮືອນ (English)</label>
+        <input type="text" name="house_name_en" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ເຈົ້າຂອງ (ລາວ)</label>
+        <input type="text" name="owner_name_lo" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Owner (English)</label>
+        <input type="text" name="owner_name_en" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold">ປີກໍ່ສ້າງ</label>
+        <input type="number" name="construction_year" class="form-control" placeholder="e.g. 1937">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold">ປະເພດເຮືອນ</label>
+        <input type="text" name="house_type" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold">ວັດສະດຸ</label>
+        <input type="text" name="building_material" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ຮູບແບບສະຖາປັດຕະຍະກຳ (ລາວ)</label>
+        <input type="text" name="architectural_style_lo" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Architectural Style (English)</label>
+        <input type="text" name="architectural_style_en" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Latitude</label>
+        <input type="number" step="any" name="latitude" class="form-control" placeholder="e.g. 19.8845">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Longitude</label>
+        <input type="number" step="any" name="longitude" class="form-control" placeholder="e.g. 102.1348">
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-bold">ຄວາມສຳຄັນທາງປະຫວັດສາດ (ລາວ)</label>
+        <textarea name="historical_significance_lo" class="form-control" rows="4"></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-bold">Historical Significance (English)</label>
+        <textarea name="historical_significance_en" class="form-control" rows="4"></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-bold">ລາຍລະອຽດ (ລາວ)</label>
+        <textarea name="description_lo" class="form-control" rows="4"></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-bold">Description (English)</label>
+        <textarea name="description_en" class="form-control" rows="4"></textarea>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ຮູບຫຼັກ</label>
+        <input type="file" name="image_main" class="form-control" accept="image/*">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">ສະຖານະ</label>
+        <select name="status" class="form-select">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="col-12 mt-2">
+        <button type="submit" class="btn" style="background:#2d6a4f;color:white;border-radius:50px;padding:10px 30px">
+          <i class="fas fa-save"></i> ບັນທຶກ / Save
+        </button>
+        <a href="/admin/houses" class="btn btn-outline-secondary ms-2" style="border-radius:50px">ຍົກເລີກ</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}ເຮືອນມໍລະດົກ{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4><i class="fas fa-home" style="color:#2d6a4f"></i> ເຮືອນມໍລະດົກທັງໝົດ</h4>
+  <a href="/admin/houses/add" class="btn" style="background:#2d6a4f;color:white;border-radius:50px">
+    <i class="fas fa-plus"></i> ເພີ່ມເຮືອນໃໝ່
+  </a>
+</div>
+<div class="stat-card">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead style="background:#f8f9fa">
+        <tr>
+          <th>ຮູບ</th><th>QR Code</th><th>ຊື່ (ລາວ)</th><th>ຊື່ (English)</th>
+          <th>ປີ</th><th>ສະຖານະ</th><th>ຈັດການ</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in houses %}
+        <tr>
+          <td>
+            {% if h.image_main %}
+              <img src="/static/uploads/{{ h.image_main }}" style="width:60px;height:45px;object-fit:cover;border-radius:8px">
+            {% else %}
+              <div style="width:60px;height:45px;background:#e9ecef;border-radius:8px;display:flex;align-items:center;justify-content:center">
+                <i class="fas fa-image text-muted"></i>
+              </div>
+            {% endif %}
+          </td>
+          <td><code>{{ h.qr_code }}</code></td>
+          <td>{{ h.house_name_lo or '—' }}</td>
+          <td>{{ h.house_name_en or '—' }}</td>
+          <td>{{ h.construction_year or '—' }}</td>
+          <td>
+            <span class="badge" style="background:{% if h.status=='active' %}#2d6a4f{% else %}#6c757d{% endif %}">
+              {{ h.status }}
+            </span>
+          </td>
+          <td>
+            <a href="/heritage?id={{ h.qr_code }}" target="_blank" class="btn btn-sm btn-outline-success me-1">
+              <i class="fas fa-eye"></i>
+            </a>
+            <a href="/admin/houses/edit/{{ h.house_id }}" class="btn btn-sm btn-outline-primary me-1">
+              <i class="fas fa-edit"></i>
+            </a>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteHouse({{ h.house_id }}, '{{ h.house_name_lo or h.qr_code }}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted py-4">ຍັງບໍ່ມີຂໍ້ມູນ</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block extra_script %}
+<script>
+function deleteHouse(id, name) {
+  Swal.fire({ title: 'ລຶບ?', text: `ລຶບ "${name}"?`, icon: 'warning',
+    showCancelButton: true, confirmButtonColor: '#dc3545', cancelButtonText: 'ຍົກເລີກ', confirmButtonText: 'ລຶບ' })
+  .then(r => {
+    if (r.isConfirmed) {
+      $.post(`/admin/houses/delete/${id}`, {}, res => {
+        if (res.success) { Swal.fire('ສຳເລັດ!','','success').then(()=>location.reload()); }
+      }, 'json');
+    }
+  });
+}
+</script>
+{% endblock %}

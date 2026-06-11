@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin{% endblock %} | ມໍລະດົກຫຼວງພະບາງ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@100..900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+* { font-family: 'Noto Sans Lao', sans-serif; }
+.sidebar { background: linear-gradient(180deg, #1a472a, #2d6a4f); min-height: 100vh; width: 250px; position: fixed; top: 0; left: 0; z-index: 100; }
+.sidebar .brand { padding: 20px; color: #d4a373; font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,.1); }
+.sidebar .nav-link { color: rgba(255,255,255,.8); padding: 12px 20px; transition: all .3s; }
+.sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,.15); color: white; border-left: 3px solid #d4a373; }
+.sidebar .nav-link i { width: 20px; }
+.main-content { margin-left: 250px; padding: 20px; background: #f5f5f5; min-height: 100vh; }
+.topbar { background: white; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.05); display: flex; justify-content: space-between; align-items: center; }
+.stat-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+{% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="brand"><i class="fas fa-landmark me-2"></i> ມໍລະດົກ LP</div>
+  <nav class="nav flex-column mt-3">
+    <a href="/admin" class="nav-link {% if request.path == '/admin' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/admin/houses" class="nav-link {% if '/admin/houses' in request.path %}active{% endif %}"><i class="fas fa-home"></i> ເຮືອນມໍລະດົກ</a>
+    <hr style="border-color:rgba(255,255,255,.2);margin:10px 20px">
+    <a href="/" class="nav-link"><i class="fas fa-external-link-alt"></i> ເບິ່ງໜ້າເວັບ</a>
+    <a href="/admin/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> ອອກຈາກລະບົບ</a>
+  </nav>
+</div>
+<div class="main-content">
+  <div class="topbar">
+    <span><i class="fas fa-user-circle me-2" style="color:#2d6a4f"></i>{{ session.admin_name }}</span>
+    <span class="badge" style="background:#2d6a4f">{{ session.admin_role }}</span>
+  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }} alert-dismissible fade show">{{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_script %}{% endblock %}
+</body>
+</html>

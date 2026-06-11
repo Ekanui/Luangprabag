@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}ມໍລະດົກຫຼວງພະບາງ | Luang Prabang Heritage{% endblock %}
+
+{% block extra_style %}
+body { background: linear-gradient(135deg, #1a472a 0%, #2d6a4f 100%); min-height: 100vh; }
+.heritage-card { background: rgba(255,255,255,0.95); border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); transition: transform 0.3s ease; }
+.heritage-card:hover { transform: translateY(-5px); }
+#qr-reader { width: 100%; max-width: 500px; margin: 0 auto; }
+.btn-lang { position: fixed; top: 20px; right: 20px; z-index: 1000; background: rgba(255,255,255,0.95); border-radius: 50px; padding: 10px 20px; font-weight: bold; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.btn-lang:hover { transform: scale(1.05); background: white; }
+.heritage-title { color: #d4a373; font-size: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+.footer { background: rgba(0,0,0,0.8); color: white; text-align: center; padding: 15px; margin-top: 30px; }
+.btn-scan { background: linear-gradient(135deg, #2d6a4f, #1a472a); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; transition: all 0.3s; }
+.btn-scan:hover { transform: scale(1.05); background: linear-gradient(135deg, #1a472a, #0d2b1f); color: white; }
+.mode-switch { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.mode-btn { background: #e9ecef; border: none; padding: 10px 25px; border-radius: 50px; font-weight: bold; transition: all 0.3s; cursor: pointer; }
+.mode-btn.active { background: #2d6a4f; color: white; }
+.upload-area { border: 2px dashed #2d6a4f; border-radius: 15px; padding: 30px 20px; text-align: center; margin: 15px 0; cursor: pointer; transition: all 0.3s; background: #f8f9fa; }
+.upload-area:hover { background: rgba(45,106,79,0.1); border-color: #1a472a; }
+.upload-area.drag-over { background: rgba(45,106,79,0.2); border-color: #d4a373; }
+#preview-image { max-width: 100%; max-height: 200px; border-radius: 10px; margin-top: 10px; display: none; }
+.hidden { display: none; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.5s ease-out; }
+{% endblock %}
+
+{% block body %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<button class="btn-lang" onclick="toggleLanguage()"><i class="fas fa-globe"></i> <span id="lang-text">English</span></button>
+
+<div class="container py-4">
+  <div class="text-center mb-4 fade-in">
+    <i class="fas fa-landmark fa-4x text-white mb-3"></i>
+    <h1 class="heritage-title" id="title-main">ມໍລະດົກຫຼວງພະບາງ</h1>
+    <p id="subtitle-main" class="text-white">ສະແກນ QR Code ເພື່ອຮຽນຮູ້ເລື່ອງລາວຂອງເຮືອນມໍລະດົກແຕ່ລະຫຼັງ</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="heritage-card p-4 fade-in">
+        <div class="text-center mb-3">
+          <i class="fas fa-qrcode fa-4x" style="color: #2d6a4f;"></i>
+          <h3 id="scanner-title" class="mt-2">ສະແກນ QR Code</h3>
+          <p id="scanner-desc" class="text-muted">ສະແກນດ້ວຍກ້ອງ ຫຼື ອັບໂຫຼດຮູບ QR Code</p>
+        </div>
+
+        <div class="mode-switch">
+          <button class="mode-btn active" id="mode-camera" onclick="switchMode('camera')">
+            <i class="fas fa-camera"></i> <span id="mode-camera-text">ສະແກນດ້ວຍກ້ອງ</span>
+          </button>
+          <button class="mode-btn" id="mode-upload" onclick="switchMode('upload')">
+            <i class="fas fa-image"></i> <span id="mode-upload-text">ອັບໂຫຼດຮູບພາບ</span>
+          </button>
+        </div>
+
+        <!-- Camera mode -->
+        <div id="camera-mode" class="scanner-mode">
+          <div id="qr-reader"></div>
+          <div class="text-center mt-3">
+            <button class="btn-scan" onclick="startScanner()" id="scan-btn">
+              <i class="fas fa-camera"></i> <span id="scan-btn-text">ເປີດກ້ອງສະແກນ</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload mode -->
+        <div id="upload-mode" class="hidden">
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+            <i class="fas fa-cloud-upload-alt fa-3x" style="color: #2d6a4f;"></i>
+            <p id="upload-text" class="mt-2 mb-1">ກົດເພື່ອເລືອກຮູບ ຫຼື ລາກຮູບມາວາງທີ່ນີ້</p>
+            <p class="text-muted small" id="upload-supported">ຮອງຮັບ PNG, JPG, JPEG, GIF, WEBP</p>
+            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+          </div>
+          <div class="text-center"><img id="preview-image" alt="Preview"></div>
+          <div id="upload-result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to use -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-8 col-lg-6">
+      <div class="heritage-card p-4 fade-in text-center">
+        <i class="fas fa-info-circle fa-3x" style="color: #2d6a4f;"></i>
+        <h5 id="info-title">ວິທີການໃຊ້ງານ</h5>
+        <p id="info-desc" class="text-muted">
+          1. ເລືອກ "ສະແກນດ້ວຍກ້ອງ" ເພື່ອໃຊ້ກ້ອງຖ່າຍຮູບ<br>
+          2. ຫຼື ເລືອກ "ອັບໂຫຼດຮູບພາບ" ເພື່ອເລືອກຮູບທີ່ມີ QR Code<br>
+          3. ລະບົບຈະສະແດງຂໍ້ມູນລາຍລະອຽດຂອງເຮືອນຫຼັງນັ້ນ
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>&copy; nadin DUANGTHACHIT ນັກສຶກສາ ວິສະວະກຳຄອມພິວເຕີ</p>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+let html5QrCode = null, currentLang = 'lo', isScanning = false, currentMode = 'camera';
+
+const translations = {
+  lo: {
+    title_main: 'ເຮືອນມໍລະດົກຫຼວງພະບາງ',
+    subtitle_main: 'ສະແກນ QR Code ເພື່ອຮຽນຮູ້ເລື່ອງລາວຂອງເຮືອນມໍລະດົກແຕ່ລະຫຼັງ',
+    scanner_title: 'ສະແກນ QR Code', scanner_desc: 'ສະແກນດ້ວຍກ້ອງ ຫຼື ອັບໂຫຼດຮູບ QR Code',
+    scan_btn: 'ເປີດກ້ອງສະແກນ', stop_btn: 'ຢຸດສະແກນ',
+    mode_camera: 'ສະແກນດ້ວຍກ້ອງ', mode_upload: 'ອັບໂຫຼດຮູບພາບ',
+    upload_text: 'ກົດເພື່ອເລືອກຮູບ ຫຼື ລາກຮູບມາວາງທີ່ນີ້', upload_supported: 'ຮອງຮັບ PNG, JPG, JPEG, GIF, WEBP',
+    scanning_qr: 'ກຳລັງສະແກນ QR Code...', scan_success: 'ສະແກນສຳເລັດ! ກຳລັງໂຫຼດ...',
+    no_qr_found: 'ບໍ່ພົບ QR Code ໃນຮູບພາບ', error_scan: 'ການສະແກນລົ້ມເຫຼວ, ກະລຸນາລອງໃໝ່',
+    info_title: 'ວິທີການໃຊ້ງານ',
+    info_desc: '1. ເລືອກ "ສະແກນດ້ວຍກ້ອງ" ເພື່ອໃຊ້ກ້ອງຖ່າຍຮູບ\n2. ຫຼື ເລືອກ "ອັບໂຫຼດຮູບພາບ" ເພື່ອເລືອກຮູບທີ່ມີ QR Code\n3. ລະບົບຈະສະແດງຂໍ້ມູນລາຍລະອຽດຂອງເຮືອນຫຼັງນັ້ນ'
+  },
+  en: {
+    title_main: 'Luang Prabang Heritage', subtitle_main: 'Scan QR Code to learn the stories of each heritage house',
+    scanner_title: 'Scan QR Code', scanner_desc: 'Scan with camera or upload QR code image',
+    scan_btn: 'Start Scanner', stop_btn: 'Stop Scanner',
+    mode_camera: 'Scan with Camera', mode_upload: 'Upload Image',
+    upload_text: 'Click to select image or drag & drop image here', upload_supported: 'Supports PNG, JPG, JPEG, GIF, WEBP',
+    scanning_qr: 'Scanning QR Code...', scan_success: 'Scan successful! Loading...',
+    no_qr_found: 'No QR Code found in the image', error_scan: 'Scan failed, please try again',
+    info_title: 'How to use',
+    info_desc: '1. Select "Scan with Camera" to use camera\n2. Or select "Upload Image" to choose an image with QR Code\n3. System will display detailed information'
+  }
+};
+
+function toggleLanguage() { currentLang = currentLang === 'lo' ? 'en' : 'lo'; updateLanguage(); }
+function updateLanguage() {
+  const t = translations[currentLang];
+  $('#title-main').text(t.title_main); $('#subtitle-main').text(t.subtitle_main);
+  $('#scanner-title').text(t.scanner_title); $('#scanner-desc').text(t.scanner_desc);
+  $('#scan-btn-text').text(isScanning ? t.stop_btn : t.scan_btn);
+  $('#mode-camera-text').text(t.mode_camera); $('#mode-upload-text').text(t.mode_upload);
+  $('#upload-text').text(t.upload_text); $('#upload-supported').text(t.upload_supported);
+  $('#info-title').text(t.info_title); $('#info-desc').text(t.info_desc);
+  $('#lang-text').text(currentLang === 'lo' ? 'English' : 'ພາສາລາວ');
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  if (mode === 'camera') {
+    $('#camera-mode').removeClass('hidden'); $('#upload-mode').addClass('hidden');
+    $('#mode-camera').addClass('active'); $('#mode-upload').removeClass('active');
+  } else {
+    $('#camera-mode').addClass('hidden'); $('#upload-mode').removeClass('hidden');
+    $('#mode-camera').removeClass('active'); $('#mode-upload').addClass('active');
+  }
+  if (html5QrCode && isScanning) { html5QrCode.stop(); isScanning = false; }
+}
+
+async function startScanner() {
+  if (html5QrCode && isScanning) {
+    await html5QrCode.stop(); isScanning = false;
+    $('#scan-btn-text').text(translations[currentLang].scan_btn); return;
+  }
+  try {
+    html5QrCode = new Html5Qrcode("qr-reader");
+    await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, () => {});
+    isScanning = true; $('#scan-btn-text').text(translations[currentLang].stop_btn);
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: translations[currentLang].error_scan, text: err.message });
+  }
+}
+
+function onScanSuccess(decodedText) {
+  if (html5QrCode && isScanning) { html5QrCode.stop(); isScanning = false; }
+  window.location.href = `/heritage?id=${encodeURIComponent(decodedText)}&lang=${currentLang}`;
+}
+
+async function handleImageUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { $('#preview-image').attr('src', e.target.result).show(); };
+  reader.readAsDataURL(file);
+  $('#upload-result').html(`<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> ${translations[currentLang].scanning_qr}</div>`);
+  try {
+    const scanner = new Html5Qrcode("temp-scanner-div");
+    const result = await scanner.scanFile(file, false);
+    $('#upload-result').html(`<div class="alert alert-success"><i class="fas fa-check-circle"></i> ${translations[currentLang].scan_success}</div>`);
+    setTimeout(() => { window.location.href = `/heritage?id=${encodeURIComponent(result)}&lang=${currentLang}`; }, 1000);
+  } catch {
+    $('#upload-result').html(`<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> ${translations[currentLang].no_qr_found}</div>`);
+    setTimeout(() => $('#upload-result').html(''), 3000);
+  }
+}
+
+const uploadArea = document.getElementById('upload-area');
+if (uploadArea) {
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault(); uploadArea.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const input = document.getElementById('file-input');
+      const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+      handleImageUpload(input);
+    }
+  });
+}
+// Hidden div needed by html5-qrcode scanFile
+document.body.insertAdjacentHTML('beforeend', '<div id="temp-scanner-div" style="display:none"></div>');
+$(document).ready(() => { updateLanguage(); switchMode('camera'); });
+</script>
+{% endblock %}
